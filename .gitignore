@@ -1,0 +1,10 @@
+# User requested ignores
+.env
+.git/*
+__pycache__/*
+*.pyc
+.pytest_cache/*
+hackathon_plan.md
+hackathon_plan_prev.md
+instruction.md
+.claude/*

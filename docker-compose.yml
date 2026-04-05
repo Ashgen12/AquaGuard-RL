@@ -1,0 +1,45 @@
+version: "3.9"
+
+# AquaGuard-RL Docker Compose configuration
+# Usage:
+#   docker-compose up --build          # Build and start
+#   docker-compose up -d               # Start in background
+#   docker-compose down                # Stop and remove containers
+
+services:
+  aquaguard-env:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aquaguard-env:latest
+    container_name: aquaguard-env
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+      - LLM_GRADER_PROVIDER=nvidia
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # Optional: local Ollama for LLM grader
+  # Uncomment to enable local LLM grading
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   restart: unless-stopped
+
+# volumes:
+#   ollama_data:

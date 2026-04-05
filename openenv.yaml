@@ -1,0 +1,101 @@
+# openenv.yaml — AquaGuard-RL Environment Metadata
+# Meta PyTorch OpenEnv Hackathon submission
+
+name: aquaguard-rl
+version: "1.0.0"
+description: >
+  India Groundwater & Agricultural Resource Management RL Environment.
+  An LLM agent acts as District Agricultural Commissioner, making seasonal
+  policy decisions across 3 interconnected zones to balance groundwater
+  sustainability, food security, farmer welfare, and crop diversity.
+  Based on real data from FAO, CGWB, GoI MSP, and NSSO surveys.
+author: "ashunaukari01@gmail.com"
+license: MIT
+
+# HuggingFace Space settings
+hf_space: "Ashgen12/AquaGuard-RL"
+tags:
+  - openenv
+  - reinforcement-learning
+  - groundwater
+  - agriculture
+  - india
+  - policy
+  - llm
+  - climate
+
+# Environment specification
+environment:
+  type: text-based
+  action_type: AquaGuardAction
+  observation_type: AquaGuardObservation
+  state_type: AquaGuardState
+  reward_range: [-10.0, 10.0]
+
+  tasks:
+    - name: baseline
+      difficulty: EASY
+      max_steps: 10
+      description: "Stable 3-zone agricultural management for 10 seasons"
+
+    - name: crisis
+      difficulty: HARD
+      max_steps: 12
+      description: "Aquifer crisis recovery — Zone C near critical threshold"
+
+    - name: policy_shift
+      difficulty: MEDIUM
+      max_steps: 8
+      description: "Green Revolution crop diversification over 8 seasons"
+
+    - name: climate_shock
+      difficulty: VERY_HARD
+      max_steps: 6
+      description: "El Niño drought — 40% of normal rainfall"
+
+    - name: multi_district
+      difficulty: EXPERT
+      max_steps: 15
+      description: "Cross-zone equity coordination with shared aquifer"
+
+# Server configuration
+server:
+  port: 8000
+  framework: fastapi
+  dockerfile: Dockerfile
+
+# Grader configuration
+grader:
+  programmatic:
+    checks: 12
+    output_field: "programmatic_score"
+
+  llm:
+    provider: nvidia
+    model: nvidia/nemotron-3-super-120b-a12b
+    dimensions:
+      - causal_reasoning
+      - tradeoff_acknowledgment
+      - domain_knowledge
+      - policy_coherence
+      - risk_awareness
+    score_range: [1, 10]
+    output_field: "llm_score"
+
+# Data sources
+data_sources:
+  - name: "FAO AQUASTAT"
+    url: "https://www.fao.org/aquastat/en/"
+    usage: "Crop water requirements"
+
+  - name: "CGWB Annual Report 2023"
+    url: "https://cgwb.gov.in/en/reports"
+    usage: "Groundwater recharge rates"
+
+  - name: "GoI MSP FY2024-25"
+    url: "https://cacp.dacnet.nic.in"
+    usage: "Crop minimum support prices"
+
+  - name: "NSSO Situation Assessment Survey 2021"
+    url: "https://mospi.gov.in/web/mospi"
+    usage: "Farmer income distribution"
