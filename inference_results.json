@@ -12,29 +12,7 @@
       "final_shannon": 1.748368737771624,
       "food_failures": 0,
       "crisis_triggered": false
-    },
-    {
-      "task": "crisis",
-      "total_reward": 52.459669231276045,
-      "steps": 12,
-      "final_gw_depth_m": 30.553142746582967,
-      "final_food_ratio": 1.6289031255071516,
-      "final_poverty_pct": 15.23680243286685,
-      "final_shannon": 1.6909850678240756,
-      "food_failures": 0,
-      "crisis_triggered": false
-    },
-    {
-      "task": "policy_shift",
-      "total_reward": 47.01157985966699,
-      "steps": 8,
-      "final_gw_depth_m": 28.247772349186807,
-      "final_food_ratio": 3.748959400519746,
-      "final_poverty_pct": 1.1460638204002143,
-      "final_shannon": 1.748368737771624,
-      "food_failures": 0,
-      "crisis_triggered": false
     }
   ],
-  "total_cumulative_reward": 164.26121517826135
+  "total_cumulative_reward": 64.78996608731832
 }

@@ -65,7 +65,7 @@ if sys.platform == "win32":
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    handlers=[logging.StreamHandler(sys.stderr)],
 )
 logger = logging.getLogger("aquaguard.inference")
 
@@ -471,13 +471,13 @@ def run_task(
         raise
 
     # Structured START log (required by hackathon submission validator)
-    print(f"START task={task_name} seed={seed}")
+    print(f"[START] task={task_name} seed={seed}", flush=True)
 
     logger.info(f"Initial state: GW={obs.shared_aquifer_level_m:.1f}m | "
                 f"food={obs.food_security_ratio:.2f} | "
                 f"poverty={obs.percent_farmers_below_poverty:.1f}%")
     logger.info(f"Season: {obs.season} | Task: {obs.task_name}")
-    print(f"\n{obs.scenario_description[:500]}...\n")
+    logger.info(f"Scenario: {obs.scenario_description[:500]}...")
 
     total_reward = 0.0
     step = 0
@@ -496,7 +496,7 @@ def run_task(
         total_reward += obs.reward or 0.0
 
         # Structured STEP log (required by hackathon submission validator)
-        print(f"STEP step={step} reward={obs.reward:+.4f} done={obs.done}")
+        print(f"[STEP] step={step} reward={obs.reward:+.4f} done={obs.done}", flush=True)
 
         logger.info(
             f"Step {step:2d} [{obs.season:6s}]: "
@@ -532,8 +532,12 @@ def run_task(
         crisis_triggered=crisis_triggered,
     )
 
+    # Compute a normalized score (0.0 to 1.0) from total_reward for the validator
+    max_possible = max_steps * 10.0  # theoretical max reward
+    score = max(0.0, min(1.0, (total_reward + max_possible) / (2 * max_possible)))
+
     # Structured END log (required by hackathon submission validator)
-    print(f"END task={task_name} total_reward={total_reward:.4f} steps={step}")
+    print(f"[END] task={task_name} score={score:.4f} steps={step}", flush=True)
 
     logger.info(f"\nTask '{task_name}' complete:")
     logger.info(f"  Total reward: {total_reward:.2f}")
@@ -583,26 +587,27 @@ def main(args: argparse.Namespace) -> None:
         except Exception as e:
             logger.error(f"Task '{task_name}' failed: {e}", exc_info=True)
 
-    # Print final summary
-    print("\n" + "="*70)
-    print("INFERENCE COMPLETE — FINAL SCORES")
-    print("="*70)
-    print(f"{'Task':<20} {'Reward':>10} {'Steps':>7} {'GW(m)':>8} {'Food':>7} {'Poverty%':>10} {'Shannon':>9}")
-    print("-"*70)
-
+    # Print final summary to stderr (keeps stdout clean for validator)
     total_cumulative = 0.0
     for r in all_results:
+        total_cumulative += r.total_reward
+
+    logger.info("")
+    logger.info("=" * 70)
+    logger.info("INFERENCE COMPLETE -- FINAL SCORES")
+    logger.info("=" * 70)
+    logger.info(f"{'Task':<20} {'Reward':>10} {'Steps':>7} {'GW(m)':>8} {'Food':>7} {'Poverty%':>10} {'Shannon':>9}")
+    logger.info("-" * 70)
+    for r in all_results:
         crisis_marker = " [!]" if r.crisis_triggered else ""
-        print(
+        logger.info(
             f"{r.task_name:<20} {r.total_reward:>10.2f} {r.steps_completed:>7} "
             f"{r.final_gw_depth:>8.1f} {r.final_food_ratio:>7.2f} "
             f"{r.final_poverty_pct:>10.1f} {r.final_shannon:>9.3f}{crisis_marker}"
         )
-        total_cumulative += r.total_reward
-
-    print("-"*70)
-    print(f"{'TOTAL':<20} {total_cumulative:>10.2f}")
-    print("="*70)
+    logger.info("-" * 70)
+    logger.info(f"{'TOTAL':<20} {total_cumulative:>10.2f}")
+    logger.info("=" * 70)
 
     # Save results
     results_path = os.path.join(os.path.dirname(__file__), "inference_results.json")
