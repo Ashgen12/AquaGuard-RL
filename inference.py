@@ -44,7 +44,7 @@ import sys
 import time
 
 from dotenv import load_dotenv
-load_dotenv(override=True)
+load_dotenv(override=False)
 from dataclasses import dataclass
 from typing import Dict, List, Any, TYPE_CHECKING
 
